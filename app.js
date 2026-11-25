@@ -163,8 +163,10 @@ function draw() {
   const nav = document.getElementById('nav');
   nav.className = st.m === 'l' ? 'nav lmode' : 'nav';
   nav.innerHTML = tabs[st.m].map(x => `<div class="nitem ${st.t === x.id ? 'act' : ''}" onclick="sel('${x.id}')"><div class="nico">${x.i}</div><div class="nlbl">${x.l}</div></div>`).join('');
-  const v = views[st.t];
-  document.getElementById('app').innerHTML = `<div class="title">${v}</div><div class="sub">${v}</div><div class="grid">${v.map(c => `<div class="card" onclick="toast('${c}')"><span class="ico">${c}</span><div class="ctitle">${c}</div><div class="cdesc">${c}</div>${c ? `<div class="epill">${c}</div>` : ''}</div>`).join('')}</div>`;
+  const [title, sub, cards] = views[st.t];
+  document.getElementById('app').innerHTML = `<div class="title">${title}</div><div class="sub">${sub}</div><div class="grid">${cards.map(([ico, ct, cd, ep]) => `<div class="card" onclick="toast('${ct}')"><span class="ico">${ico}</span><div class="ctitle">${ct}</div><div class="cdesc">${cd}</div>${ep ? `<div class="epill">${ep}</div>` : ''}</div>`).join('')}</div>`;
+  const [title, sub, cards] = views[st.t];
+  document.getElementById('app').innerHTML = `<div class="title">${title}</div><div class="sub">${sub}</div><div class="grid">${cards.map(([ico, ct, cd, ep]) => `<div class="card" onclick="toast('${ct}')"><span class="ico">${ico}</span><div class="ctitle">${ct}</div><div class="cdesc">${cd}</div>${ep ? `<div class="epill">${ep}</div>` : ''}</div>`).join('')}</div>`;
 }
 
 draw(); updBal();
