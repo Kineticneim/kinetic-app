@@ -159,7 +159,6 @@ document.getElementById('msw').onclick = () => {
 };
 
 function sel(id) { vib('light'); st.t = id; draw(); }
-
 function draw() {
   const nav = document.getElementById('nav');
   nav.className = st.m === 'l' ? 'nav lmode' : 'nav';
@@ -168,5 +167,4 @@ function draw() {
   document.getElementById('app').innerHTML = `<div class="title">${v}</div><div class="sub">${v}</div><div class="grid">${v.map(c => `<div class="card" onclick="toast('${c}')"><span class="ico">${c}</span><div class="ctitle">${c}</div><div class="cdesc">${c}</div>${c ? `<div class="epill">${c}</div>` : ''}</div>`).join('')}</div>`;
 }
 
-updBal();
-draw();
+draw(); updBal();
