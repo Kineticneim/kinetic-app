@@ -7,165 +7,61 @@ const uAva = u?.photo_url || 'https://dicebear.com';
 document.getElementById('uname').textContent = uName;
 document.getElementById('ava').src = uAva;
 
-let st = {
-  m: 'k', t: 'mental', rub: 500000, spk: 250, cur: 'RUB', adsLeft: 7,
-  carColor: '#11131A', carFinish: 'Матовый', rimColor: '#E5E7EB', ride: 'Стандарт',
-  tableTheme: 'Белый лавовый', extraSlots: false, cardsPublic: true, diceHist: []
-};
+let st = { m: 'k', t: 'mental', rub: 500000, spk: 250, cur: 'RUB', car: 0, low: false, tbl: 0 };
+const cars = [
+  { hex: '#11131A', name: 'Чёрный матовый' },
+  { hex: '#7C3AED', name: 'Неон градиент' },
+  { hex: '#D1D5DB', name: 'Зеркальный хром' }
+];
+const tbls = ['Белый лавовый', 'Чёрный карбон', 'Серый гранит'];
 
 const tabs = {
-  k: [
-    { id: 'mental', i: '🧠', l: 'МЕНТАЛ' }, { id: 'horizon', i: '🔮', l: 'ГОРИЗОНТ' },
-    { id: 'boost', i: '🎮', l: 'БУСТ' }, { id: 'status', i: '💎', l: 'СТАТУС' },
-    { id: 'neuro', i: '⚡', l: 'НЕЙРО' }, { id: 'market', i: '🛒', l: 'МАРКЕТ' }
-  ],
-  l: [
-    { id: 'pair', i: '❤️', l: 'ПАРА' }, { id: 'home', i: '🏠', l: 'ДОМ' },
-    { id: 'games', i: '🎲', l: 'ИГРЫ' }, { id: 'chat', i: '💬', l: 'ЧАТ' },
-    { id: 'lmarket', i: '🛍️', l: 'МАРКЕТ' }
-  ]
+  k: [{ id: 'mental', i: '🧠', l: 'МЕНТАЛ' }, { id: 'horizon', i: '🔮', l: 'ГОРИЗОНТ' }, { id: 'boost', i: '🎮', l: 'БУСТ' }, { id: 'status', i: '💎', l: 'СТАТУС' }, { id: 'neuro', i: '⚡', l: 'НЕЙРО' }, { id: 'market', i: '🛒', l: 'МАРКЕТ' }],
+  l: [{ id: 'pair', i: '❤️', l: 'ПАРА' }, { id: 'home', i: '🏠', l: 'ДОМ' }, { id: 'games', i: '🎲', l: 'ИГРЫ' }, { id: 'chat', i: '💬', l: 'ЧАТ' }, { id: 'lmarket', i: '🛍️', l: 'МАРКЕТ' }]
 };
 
 const views = {
-  mental: ['МЕНТАЛ', 'ИИ-разборы личности и карточки в Профиль', [
-    ['🎲', 'ГРАНЬ ВЫБОРА', 'Кости 50/50 ДА или НЕТ + история', '⚡ Играть', 'openDice()'],
-    ['🧬', 'ЛИЧНОСТЬ', 'Вопросы + скан отпечатка 3 сек', 'Скоро', "toast('Подключаем ИИ-ключ...')"],
-    ['🔋', 'ДОФАМИН.EXE', 'Заряд дофамина и план восстановления', 'Скоро', "toast('Подключаем ИИ-ключ...')"],
-    ['🚀', 'ТОЧКА РОСТА', 'Подбор цифровой ниши от ИИ', 'Скоро', "toast('Подключаем ИИ-ключ...')"]
-  ]],
-  horizon: ['ГОРИЗОНТ', 'ИИ-предсказания будущего в коллекцию', [
-    ['🏎️', 'АВТОПАРК', 'Твоя будущая машина по амбициям', '', "toast('Скоро в модуле ГОРИЗОНТ')"],
-    ['🌆', 'ЛОКАЦИЯ', 'Город, жильё и идеальный день', '', "toast('Скоро в модуле ГОРИЗОНТ')"],
-    ['💰', 'ПОТОЛОК', 'Потенциальный доход и главный актив', '', "toast('Скоро в модуле ГОРИЗОНТ')"],
-    ['🐺', 'ТОТЕМ', 'Тотемное животное и энергетика', '', "toast('Скоро в модуле ГОРИЗОНТ')"]
-  ]],
-  boost: ['БУСТ', 'Игровой клуб на виртуальные ₽ и $', [
-    ['✂️', 'КНБ 1x1', 'Дуэль со стриком x2 / x4 / x8', '', "toast('Следующий модуль: БУСТ')"],
-    ['💣', 'САПЁР', 'Сетка 4x4, 1 / 3 / 5 бомб', '', "toast('Следующий модуль: БУСТ')"],
-    ['🔫', 'РУЛЕТКА', 'Барабан на 6 ячеек, 1–3 заряда', '', "toast('Следующий модуль: БУСТ')"],
-    ['🚀', 'РАКЕТА', 'Успей забрать коэффициент', '', "toast('Следующий модуль: БУСТ')"],
-    ['🃏', 'БЛЭКДЖЕК', 'Дуэль на 21 против ИИ-дилера', '', "toast('Следующий модуль: БУСТ')"],
-    ['♠️', 'ДУРАК', 'Подкидной и переводной против ИИ', '', "toast('Следующий модуль: БУСТ')"]
-  ]],
-  status: ['СТАТУС', 'Спины: 8 редкостей до Божественной', [
-    ['🚘', 'АВТО И НОМЕРА', '250 тачек и 100 блатных номеров', '', "toast('Следующий модуль: СТАТУС')"],
-    ['⌚', 'ЧАСЫ', '250 моделей от классики до Rolex', '', "toast('Следующий модуль: СТАТУС')"],
-    ['💳', 'БАНК. КАРТЫ', '100 элитных карт на столик', '', "toast('Следующий модуль: СТАТУС')"],
-    ['📱', 'СИМ-КАРТЫ', '100 редких номеров 777-77-77', '', "toast('Следующий модуль: СТАТУС')"]
-  ]],
-  neuro: ['НЕЙРО', 'Безлимитный ИИ-чат + 3 фото в день', [
-    ['🤖', 'ИИ-ЧАТ + ФОТО', 'Текст безлимит • 3 фото/день бесплатно', '', "toast('Подключаем ИИ-API...')"],
-    ['🎙️', 'ГОЛОС В ТЕКСТ', 'Расшифровка ГС + главная суть', '', "toast('Подключаем ИИ-API...')"],
-    ['✍️', 'МАСТЕР ТЕКСТОВ', 'Ответы и посты в 3 стилях', '', "toast('Подключаем ИИ-API...')"],
-    ['📑', 'КОНСПЕКТ', 'Выжимка текста в 5 главных мыслей', '', "toast('Подключаем ИИ-API...')"]
-  ]],
-  market: ['МАРКЕТ', 'Тюнинг, VIP, задания и Топ игроков', [
-    ['🎨', 'ТЮНИНГ И СТОЛ', 'Покраска авто/дисков, клиренс и столы', '⚡ Открыть', 'openProfile()'],
-    ['👑', 'VIP-МАГАЗИН', 'Удача 10X, без рекламы и слоты 3/3/2', '', "toast('VIP: 149 Stars / 30 дней')"],
-    ['🎁', 'ЗАДАНИЯ', 'Бонусы до 1 000 000 ₽ и рефералка', '', "toast('Календарь 7 дней')"],
-    ['🏆', 'ТОП ИГРОКОВ', 'Рейтинг богачей и просмотр гаражей', '', "toast('Таблица лидеров')"]
-  ]],
-  pair: ['KINETIC LOVE ❤️', 'Кристалл связи, Банка желаний и Капсула', [
-    ['💎', 'КРИСТАЛЛ СВЯЗИ', 'Стрик пары: открывает ауры и мебель', '⚡ Активен', "toast('Кристалл заряжен!')"],
-    ['🫙', 'БАНКА ЖЕЛАНИЙ', 'Хотелки и подарки (Публично / Скрыто)', '', "toast('Модуль LOVE ❤️')"],
-    ['⏳', 'КАПСУЛА ВРЕМЕНИ', 'Фото и текст в будущее — откроется обоим', '', "toast('Модуль LOVE ❤️')"],
-    ['🌸', 'КАЛЕНДАРЬ', 'Цикл, настроение и симптомы', '', "toast('Модуль LOVE ❤️')"]
-  ]],
-  home: ['ОБЩИЙ ДОМ', 'Планировка, Общая копилка и 80 питомцев', [
-    ['🏦', 'КОПИЛКА ЦЕЛИ', 'Сейф SPARK на особняк или редкого пета', '', "toast('Общая копилка SPARK')"],
-    ['🐾', 'ПИТОМЦЫ (80)', 'Уход, прогулка 30 мин и 9 уровней роста', '', "toast('До 6 слотов питомцев')"]
-  ]],
-  games: ['ИГРЫ ДЛЯ ДВОИХ', '4 режима с live-синхронизацией', [
-    ['🔥', 'ПРАВДА / ДЕЙСТВИЕ', '3 режима + штраф SPARK за отказ', '', "toast('Правда или Действие')"],
-    ['🖼️', 'ПО БЛЮРУ', 'Счёт пары вверху + мини-чат внизу', '', "toast('Угадай по блюру')"],
-    ['💞', 'КВИЗ + ИИ', '50+ тем и ИИ-Арбитр споров', '', "toast('Квиз пары')"],
-    ['🎡', 'СВИДАНИЯ', 'Дома, город, на расстоянии + свои', '', "toast('Колесо свиданий')"]
-  ]],
-  chat: ['ПАРНЫЙ ЧАТ', 'Мини-чат с вашими темами и пузырями', [
-    ['💌', 'ЧАТ ДВОИХ', 'Мгновенная синхронизация и украшения', '', "toast('Парный чат')"]
-  ]],
-  lmarket: ['МАРКЕТ ПАРЫ', 'Боксы, дома, мебель и одежда для петов', [
-    ['📦', 'ПАРНЫЕ БОКСЫ', '100+ рамок, домов и одежды для петов', '', "toast('Парные боксы')"],
-    ['🛋️', 'ДОМ И ЗООМАГ', 'Мебель, перекраска, корм и туалеты', '', "toast('Мебель и зоомагазин')"]
-  ]]
+  mental: ['МЕНТАЛ', 'ИИ-тесты и карточки', [['🎲', 'ГРАНЬ ВЫБОРА', 'Кости 50/50 ДА или НЕТ', 'openDice()'], ['🧬', 'ЛИЧНОСТЬ', 'Скан отпечатка + ИИ-карта', "toast('Скоро')"], ['🔋', 'ДОФАМИН.EXE', 'Заряд дофамина', "toast('Скоро')"], ['🚀', 'ТОЧКА РОСТА', 'Подбор ниши от ИИ', "toast('Скоро')"]]],
+  horizon: ['ГОРИЗОНТ', 'Предсказания будущего', [['🏎️', 'АВТОПАРК', 'Будущая машина', "toast('Скоро')"], ['🌆', 'ЛОКАЦИЯ', 'Город и жильё', "toast('Скоро')"], ['💰', 'ПОТОЛОК', 'Доход и актив', "toast('Скоро')"], ['🐺', 'ТОТЕМ', 'Тотемное животное', "toast('Скоро')"]]],
+  boost: ['БУСТ', 'Игры на виртуальные ₽', [['✂️', 'КНБ 1x1', 'Стрик x2/x4/x8', "toast('Скоро')"], ['💣', 'САПЁР', 'Сетка 4x4', "toast('Скоро')"], ['🔫', 'РУЛЕТКА', 'Барабан 6 ячеек', "toast('Скоро')"], ['🚀', 'РАКЕТА', 'Успей забрать X', "toast('Скоро')"]]],
+  status: ['СТАТУС', 'Спины и 8 редкостей', [['🚘', 'АВТО И НОМЕРА', '250 машин + номера', "toast('Скоро')"], ['⌚', 'ЧАСЫ', 'От классики до Rolex', "toast('Скоро')"], ['💳', 'БАНК. КАРТЫ', '100 элитных карт', "toast('Скоро')"], ['📱', 'СИМ-КАРТЫ', 'Номера 777-77-77', "toast('Скоро')"]]],
+  neuro: ['НЕЙРО', 'ИИ-помощник', [['🤖', 'ИИ-ЧАТ + ФОТО', '3 фото/день бесплатно', "toast('Скоро')"], ['🎙️', 'ГОЛОС В ТЕКСТ', 'Расшифровка ГС', "toast('Скоро')"]]],
+  market: ['МАРКЕТ', 'Тюнинг и VIP', [['🎨', 'ТЮНИНГ И СТОЛ', 'Открыть гараж', 'openProfile()'], ['👑', 'VIP-СТАТУС', '149 Stars / 30 дней', "toast('Скоро')"]]],
+  pair: ['KINETIC LOVE ❤️', 'Пространство пары', [['💎', 'КРИСТАЛЛ СВЯЗИ', 'Стрик активности', "toast('Активен')"], ['🫙', 'БАНКА ЖЕЛАНИЙ', 'Список хотелок', "toast('Скоро')"], ['⏳', 'КАПСУЛА ВРЕМЕНИ', 'Фото и текст в будущее', "toast('Скоро')"], ['🌸', 'КАЛЕНДАРЬ', 'Цикл и симптомы', "toast('Скоро')"]]],
+  home: ['ОБЩИЙ ДОМ', 'Дом и 80 питомцев', [['🏦', 'КОПИЛКА SPARK', 'Общая цель', "toast('Скоро')"], ['🐾', 'ПИТОМЦЫ', 'До 6 слотов', "toast('Скоро')"]]],
+  games: ['ИГРЫ ПАРЫ', '4 режима', [['🔥', 'ПРАВДА / ДЕЙСТВИЕ', '3 уровня', "toast('Скоро')"], ['🖼️', 'ПО БЛЮРУ', 'Фото-квиз', "toast('Скоро')"]]],
+  chat: ['ПАРНЫЙ ЧАТ', 'Чат двоих', [['💌', 'ОТКРЫТЬ ЧАТ', 'Live-переписка', "toast('Скоро')"]]],
+  lmarket: ['МАРКЕТ ПАРЫ', 'Боксы и зоомагазин', [['📦', 'БОКСЫ ПАРЫ', '100+ предметов', "toast('Скоро')"]]]
 };
 
-function vib(t = 'light') { tg?.HapticFeedback?.impactOccurred(t); }
-function toast(m) {
-  const el = document.getElementById('toast');
-  el.textContent = m; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2200);
-}
-function openModal(html) { document.getElementById('modal-box').innerHTML = html; document.getElementById('modal-bg').classList.add('open'); }
+function toast(m) { const e = document.getElementById('toast'); e.textContent = m; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2000); }
+function openModal(h) { document.getElementById('modal-box').innerHTML = h; document.getElementById('modal-bg').classList.add('open'); }
 function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
-document.getElementById('modal-bg').onclick = (e) => { if (e.target.id === 'modal-bg') closeModal(); };
+document.getElementById('modal-bg').onclick = e => { if (e.target.id === 'modal-bg') closeModal(); };
 
-function updBal() {
-  document.getElementById('bval').textContent = st.m === 'l'
-    ? st.spk + ' SPARK ⚡'
-    : (st.cur === 'RUB' ? st.rub.toLocaleString('ru-RU') + ' ₽' : '$' + (st.rub / 100).toLocaleString('en-US'));
-}
+function updBal() { document.getElementById('bval').textContent = st.m === 'l' ? st.spk + ' SPARK ⚡' : (st.cur === 'RUB' ? st.rub.toLocaleString('ru-RU') + ' ₽' : '$' + (st.rub / 100)); }
 
 function openDice() {
-  vib('medium');
-  const histHtml = st.diceHist.length
-    ? st.diceHist.slice(0, 5).map(x => `<div class="cdesc" style="margin-top:4px">• ${x}</div>`).join('')
-    : '<div class="cdesc">Бросков пока нет</div>';
-  openModal(`
-    <div class="mhead"><span class="mtitle">🎲 ГРАНЬ ВЫБОРА</span><button class="mclose" onclick="closeModal()">✕</button></div>
-    <div class="cdesc" style="margin-bottom:12px">Загадай вопрос про себя и брось кости (строго 50/50)</div>
-    <div id="dice-res" style="text-align:center;font-family:'Unbounded';font-size:28px;font-weight:800;padding:22px;background:#0B0C10;border:1px solid #262938;border-radius:16px;margin-bottom:12px">?</div>
-    <button class="mbtn" style="width:100%;padding:12px;font-size:12px" onclick="rollDice()">БРОСИТЬ КОСТИ 50/50</button>
-    <div style="margin-top:14px"><b>История бросков:</b>${histHtml}</div>
-  `);
+  openModal(`<div class="mhead"><span class="mtitle">🎲 ГРАНЬ ВЫБОРА</span><button class="mclose" onclick="closeModal()">✕</button></div><div id="dres" style="text-align:center;font-family:'Unbounded';font-size:26px;padding:20px;background:#0B0C10;border-radius:14px;margin-bottom:12px">?</div><button class="mbtn" style="width:100%;padding:12px" onclick="document.getElementById('dres').textContent=Math.random()<0.5?'ДА ✅':'НЕТ ❌'">БРОСИТЬ 50/50</button>`);
 }
 
-function rollDice() {
-  vib('heavy');
-  const el = document.getElementById('dice-res');
-  el.textContent = '🎲 ...';
-  setTimeout(() => {
-    const win = Math.random() < 0.5;
-    const ans = win ? 'ДА ✅' : 'НЕТ ❌';
-    el.style.color = win ? '#10B981' : '#EF4444';
-    el.textContent = ans;
-    st.diceHist.unshift(`${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} — ${ans}`);
-    vib('medium');
-  }, 450);
-}
-
-function openTableShowcase() {
-  vib('heavy');
-  const lim = st.extraSlots ? '3 карты • 3 симки • 2 часов' : '2 карты • 2 симки • 1 часы';
-  openModal(`
-    <div class="mhead"><span class="mtitle">💎 ВИТРИНА СТОЛИКА</span><button class="mclose" onclick="closeModal()">✕</button></div>
-    <div class="cdesc" style="margin-bottom:10px">Стол: <b>${st.tableTheme}</b> • Слоты: <b>${lim}</b></div>
-    <div class="mrow"><div><b>💳 Black Titanium Card</b><div class="cdesc">7777 0000 7777 7777</div></div><span class="epill">Эпическая</span></div>
-    <div class="mrow"><div><b>📱 Блатная SIM-карта</b><div class="cdesc">+7 (999) 777-77-77</div></div><span class="epill">Легендарная</span></div>
-    <div class="mrow"><div><b>⌚ Rolex Daytona</b><div class="cdesc">Хронограф • 7 000 000 ₽</div></div><span class="epill">Золотая</span></div>
-    ${!st.extraSlots ? `<button class="mbtn gold" style="width:100%;padding:11px;margin-top:6px" onclick="st.extraSlots=true;openTableShowcase();toast('Открыты доп. слоты 3/3/2!')">+1 СЛОТ КО ВСЕМУ (ЗА 2 РЕКЛАМЫ)</button>` : ''}
-  `);
-}
-
-function tuneCar(type) {
-  if (st.rub < 50000) return toast('Недостаточно ₽ (нужно 50 000 ₽)');
-  st.rub -= 50000; updBal(); vib('medium');
-  if (type === 'color') {
-    const cols = [['#11131A','Чёрный матовый'],['#7C3AED','Фиолетовый градиент'],['#E5E7EB','Зеркальный хром'],['#DC2626','Красный металлик']];
-    const next = cols[(cols.findIndex(c => c[0] === st.carColor) + 1) % cols.length];
-    st.carColor = next[0]; st.carFinish = next[1];
-  } else if (type === 'ride') {
-    st.ride = st.ride === 'Стандарт' ? 'Заниженная 🔥' : 'Стандарт';
-  } else if (type === 'table') {
-    const tbls = ['Белый лавовый', 'Чёрный карбон', 'Серый гранит'];
-    st.tableTheme = tbls[(tbls.indexOf(st.tableTheme) + 1) % tbls.length];
-  }
-  openProfile();
-  toast('Тюнинг применён (-50 000 ₽)');
+function openTable() {
+  openModal(`<div class="mhead"><span class="mtitle">💎 СТОЛИК (${tbls[st.tbl]})</span><button class="mclose" onclick="closeModal()">✕</button></div><div class="mrow"><b>💳 Black Card 7777</b><span class="epill">Эпик</span></div><div class="mrow"><b>📱 SIM 777-77-77</b><span class="epill">Легенда</span></div><div class="mrow"><b>⌚ Rolex Daytona</b><span class="epill">Золото</span></div>`);
 }
 
 function openProfile() {
-  vib('medium');
-  const app = document.getElementById('app');
-  const topOffset = st.ride === 'Стандарт' ? '0px' : '8px';
-  app.innerHTML = `
+  const c = cars[st.car];
+  document.getElementById('app').innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:12px"><div class="title">ПРОФИЛЬ</div><button class="mclose" onclick="draw()">✕</button></div><div class="card" style="margin-bottom:12px;border-color:#3B82F6"><div class="cdesc" style="margin-bottom:8px">🏠 Чёрный гараж у бассейна • ${st.low ? 'Заниженная' : 'Стандарт'}</div><div style="display:flex;gap:8px;align-items:center"><div style="flex:1;background:${c.hex};padding:14px;border-radius:14px;text-align:center;transform:translateY(${st.low ? '6px' : '0'})"><div style="font-size:24px">🚙</div><div class="ctitle">CRUISER 200</div><div class="cdesc">${c.name}</div><div style="background:#fff;color:#000;font-weight:800;font-size:10px;border-radius:4px;margin-top:6px;padding:2px">А777АА 777</div></div><div onclick="openTable()" style="width:90px;background:#1B1E2E;border:1px solid #F59E0B;border-radius:12px;padding:12px 6px;text-align:center;cursor:pointer"><div>💳📱⌚</div><div class="ctitle" style="color:#F59E0B;margin-top:4px">СТОЛИК</div><div class="cdesc">${tbls[st.tbl]}</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px"><button class="mbtn" onclick="st.car=(st.car+1)%3;openProfile()">🎨 Цвет</button><button class="mbtn" onclick="st.low=!st.low;openProfile()">⬇️ Посадка</button><button class="mbtn" onclick="st.tbl=(st.tbl+1)%3;openProfile()">🪨 Стол</button></div></div>`;
+}
+
+document.getElementById('profile-btn').onclick = openProfile;
+document.getElementById('bal-btn').onclick = () => openModal(`<div class="mhead"><span class="mtitle">КОШЕЛЁК</span><button class="mclose" onclick="closeModal()">✕</button></div><div class="mrow" onclick="st.cur=st.cur==='RUB'?'USD':'RUB';updBal();closeModal()"><b>Валюта ₽ / $</b><button class="mbtn">Сменить</button></div><div class="mrow" onclick="st.rub+=150000;updBal();closeModal();toast('+150 000 ₽')"><b>Бонус за рекламу</b><button class="mbtn gold">+150 000 ₽</button></div>`);
+document.getElementById('msw').onclick = () => { const b = document.getElementById('msw'), l = document.getElementById('logo'); if (st.m === 'k') { st.m = 'l'; st.t = 'pair'; b.classList.add('act'); b.textContent = 'KINETIC'; l.textContent = 'LOVE ❤️'; } else { st.m = 'k'; st.t = 'mental'; b.classList.remove('act'); b.textContent = 'LOVE ❤️'; l.textContent = 'KINETIC'; } updBal(); draw(); };
+function sel(id) { st.t = id; draw(); }
+function draw() {
+  const nav = document.getElementById('nav'); nav.className = st.m === 'l' ? 'nav lmode' : 'nav';
+  nav.innerHTML = tabs[st.m].map(x => `<div class="nitem ${st.t === x.id ? 'act' : ''}" onclick="sel('${x.id}')"><div class="nico">${x.i}</div><div class="nlbl">${x.l}</div></div>`).join('');
+  const v = views[st.t];
+  document.getElementById('app').innerHTML = `<div class="title">${v[0]}</div><div class="sub">${v[1]}</div><div class="grid">${v[2].map(c => `<div class="card" onclick="${c[3]}"><span class="ico">${c[0]}</span><div class="ctitle">${c[1]}</div><div class="cdesc">${c[2]}</div></div>`).join('')}</div>`;
+}
+updBal(); draw();
