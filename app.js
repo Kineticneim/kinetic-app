@@ -1,10 +1,5 @@
 const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-  tg.setHeaderColor('#0B0C10');
-  tg.setBackgroundColor('#0B0C10');
-}
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0B0C10'); tg.setBackgroundColor('#0B0C10'); }
 
 const u = tg?.initDataUnsafe?.user;
 if (u) {
@@ -12,22 +7,17 @@ if (u) {
   if (u.photo_url) document.getElementById('ava').src = u.photo_url;
 }
 
-let st = { m: 'k', t: 'mental', rub: 500000, spk: 250, cur: 'RUB' };
+let st = { m: 'k', t: 'mental', rub: 500000, spk: 250, cur: 'RUB', adsLeft: 7 };
 
 const tabs = {
   k: [
-    { id: 'mental', i: '🧠', l: 'МЕНТАЛ' },
-    { id: 'horizon', i: '🔮', l: 'ГОРИЗОНТ' },
-    { id: 'boost', i: '🎮', l: 'БУСТ' },
-    { id: 'status', i: '💎', l: 'СТАТУС' },
-    { id: 'neuro', i: '⚡', l: 'НЕЙРО' },
-    { id: 'market', i: '🛒', l: 'МАРКЕТ' }
+    { id: 'mental', i: '🧠', l: 'МЕНТАЛ' }, { id: 'horizon', i: '🔮', l: 'ГОРИЗОНТ' },
+    { id: 'boost', i: '🎮', l: 'БУСТ' }, { id: 'status', i: '💎', l: 'СТАТУС' },
+    { id: 'neuro', i: '⚡', l: 'НЕЙРО' }, { id: 'market', i: '🛒', l: 'МАРКЕТ' }
   ],
   l: [
-    { id: 'pair', i: '❤️', l: 'ПАРА' },
-    { id: 'home', i: '🏠', l: 'ДОМ' },
-    { id: 'games', i: '🎲', l: 'ИГРЫ' },
-    { id: 'chat', i: '💬', l: 'ЧАТ' },
+    { id: 'pair', i: '❤️', l: 'ПАРА' }, { id: 'home', i: '🏠', l: 'ДОМ' },
+    { id: 'games', i: '🎲', l: 'ИГРЫ' }, { id: 'chat', i: '💬', l: 'ЧАТ' },
     { id: 'lmarket', i: '🛍️', l: 'МАРКЕТ' }
   ]
 };
@@ -99,10 +89,16 @@ const views = {
 function vib(t = 'light') { tg?.HapticFeedback?.impactOccurred(t); }
 function toast(m) {
   const el = document.getElementById('toast');
-  el.textContent = m;
-  el.classList.add('show');
+  el.textContent = m; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2000);
 }
+
+function openModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+document.getElementById('modal-bg').onclick = (e) => { if (e.target.id === 'modal-bg') closeModal(); };
 
 function updBal() {
   document.getElementById('bval').textContent = st.m === 'l'
@@ -110,15 +106,46 @@ function updBal() {
     : (st.cur === 'RUB' ? st.rub.toLocaleString('ru-RU') + ' ₽' : '$' + (st.rub / 100).toLocaleString('en-US'));
 }
 
-document.getElementById('profile-btn').onclick = () => { vib('medium'); toast('Открываем 3D-Профиль, Гараж и Столик...'); };
+function claimAd() {
+  if (st.adsLeft <= 0) return toast('Лимит на сегодня исчерпан');
+  vib('heavy'); st.adsLeft--; st.rub += 150000; updBal(); closeModal();
+  toast('+150 000 ₽ начислено на баланс!');
+}
+
 document.getElementById('bal-btn').onclick = () => {
   vib('medium');
   if (st.m === 'k') {
-    st.cur = st.cur === 'RUB' ? 'USD' : 'RUB';
-    updBal();
-    toast(st.cur === 'USD' ? 'Валюта: Доллары ($)' : 'Валюта: Рубли (₽)');
-  } else toast('Перевод SPARK партнёру');
+    openModal(`
+      <div class="mhead"><span class="mtitle">КОШЕЛЁК KINETIC</span><button class="mclose" onclick="closeModal()">✕</button></div>
+      <div class="mrow" onclick="st.cur=st.cur==='RUB'?'USD':'RUB';updBal();closeModal();toast('Валюта переключена')">
+        <div><b>Отображение валюты</b><div class="cdesc">Сейчас: ${st.cur === 'RUB' ? 'Рубли (₽)' : 'Доллары ($)'}</div></div>
+        <button class="mbtn">₽ / $</button>
+      </div>
+      <div class="mrow" onclick="claimAd()">
+        <div><b>Смотреть 2 рекламы (${st.adsLeft}/7)</b><div class="cdesc">Бесплатный приток валюты каждый день</div></div>
+        <button class="mbtn gold">+150 000 ₽</button>
+      </div>
+      <div class="mrow" onclick="closeModal();toast('VIP-статус: 149 Stars')">
+        <div><b>VIP-статус на 30 дней</b><div class="cdesc">Удача 10X, без рекламы, слоты 3/3/2</div></div>
+        <button class="mbtn">149 ⭐</button>
+      </div>
+    `);
+  } else {
+    openModal(`
+      <div class="mhead"><span class="mtitle">КОШЕЛЁК SPARK ⚡</span><button class="mclose" onclick="closeModal()">✕</button></div>
+      <div class="mrow" onclick="if(st.spk>=50){st.spk-=50;updBal();closeModal();toast('Перевели 50 SPARK второй половинке ❤️')}">
+        <div><b>Перевести партнёру</b><div class="cdesc">Мгновенно и без комиссии</div></div>
+        <button class="mbtn gold">-50 ⚡</button>
+      </div>
+      <div class="mrow" onclick="st.spk+=100;updBal();closeModal();toast('+100 SPARK за активность!')">
+        <div><b>Ежедневный бонус пары</b><div class="cdesc">Забирай каждый день</div></div>
+        <button class="mbtn">+100 ⚡</button>
+      </div>
+    `);
+  }
 };
+
+document.getElementById('profile-btn').onclick = () => { vib('medium'); toast('Открываем 3D-Профиль, Гараж и Столик...'); };
 
 document.getElementById('msw').onclick = () => {
   vib('heavy');
@@ -138,7 +165,7 @@ function draw() {
   nav.className = st.m === 'l' ? 'nav lmode' : 'nav';
   nav.innerHTML = tabs[st.m].map(x => `<div class="nitem ${st.t === x.id ? 'act' : ''}" onclick="sel('${x.id}')"><div class="nico">${x.i}</div><div class="nlbl">${x.l}</div></div>`).join('');
   const v = views[st.t];
-  document.getElementById('app').innerHTML = `<div class="title">${v[0]}</div><div class="sub">${v[1]}</div><div class="grid">${v[2].map(c => `<div class="card" onclick="toast('${c[1]}')"><span class="ico">${c[0]}</span><div class="ctitle">${c[1]}</div><div class="cdesc">${c[2]}</div>${c[3] ? `<div class="epill">${c[3]}</div>` : ''}</div>`).join('')}</div>`;
+  document.getElementById('app').innerHTML = `<div class="title">${v}</div><div class="sub">${v}</div><div class="grid">${v.map(c => `<div class="card" onclick="toast('${c}')"><span class="ico">${c}</span><div class="ctitle">${c}</div><div class="cdesc">${c}</div>${c ? `<div class="epill">${c}</div>` : ''}</div>`).join('')}</div>`;
 }
 
 updBal();
