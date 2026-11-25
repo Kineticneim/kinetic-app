@@ -1,0 +1,230 @@
+KINETIC
+Игрок
+⚡ KINETIC
+
+KINETIC
+LOVE ❤️
+500 000 ₽
++
+
+const tg = window.Telegram?.WebApp;
+if (tg) {
+tg.ready();
+tg.expand();
+tg.setHeaderColor('#0B0C10');
+tg.setBackgroundColor('#0B0C10');
+}
+const user = tg?.initDataUnsafe?.user;
+if (user) {
+document.getElementById('tg-name').textContent = user.first_name || 'Игрок';
+if (user.photo_url) {
+document.getElementById('tg-avatar').src = user.photo_url;
+}
+}
+let state = {
+mode: 'kinetic',
+tab: 'mental',
+rubBalance: 500000,
+sparkBalance: 250,
+currency: 'RUB'
+};
+const tabsData = {
+kinetic: [
+{ id: 'mental', icon: '🧠', label: 'МЕНТАЛ' },
+{ id: 'horizon', icon: '🔮', label: 'ГОРИЗОНТ' },
+{ id: 'boost', icon: '🎮', label: 'БУСТ' },
+{ id: 'status', icon: '💎', label: 'СТАТУС' },
+{ id: 'neuro', icon: '⚡', label: 'НЕЙРО' },
+{ id: 'market', icon: '🛒', label: 'МАРКЕТ' }
+],
+love: [
+{ id: 'pair', icon: '❤️', label: 'ПАРА' },
+{ id: 'home', icon: '🏠', label: 'ДОМ' },
+{ id: 'games', icon: '🎲', label: 'ИГРЫ' },
+{ id: 'chat', icon: '💬', label: 'ЧАТ' },
+{ id: 'lovemarket', icon: '🛍️', label: 'МАРКЕТ' }
+]
+};
+function haptic(type = 'light') {
+if (tg?.HapticFeedback) {
+tg.HapticFeedback.impactOccurred(type);
+}
+}
+function showToast(msg) {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.classList.add('show');
+setTimeout(() => t.classList.remove('show'), 2200);
+}
+function updateBalanceUI() {
+const el = document.getElementById('balance-text');
+if (state.mode === 'love') {
+el.textContent = ${state.sparkBalance} SPARK ⚡;
+} else {
+if (state.currency === 'RUB') {
+el.textContent = state.rubBalance.toLocaleString('ru-RU') + ' ₽';
+} else {
+el.textContent = '$' + (state.rubBalance / 100).toLocaleString('en-US');
+}
+}
+}
+function toggleCurrency() {
+haptic('medium');
+if (state.mode === 'kinetic') {
+state.currency = state.currency === 'RUB' ? 'USD' : 'RUB';
+updateBalanceUI();
+showToast(state.currency === 'USD' ? 'Валюта: Доллары ($)' : 'Валюта: Рубли (₽)');
+} else {
+showToast('Перевод SPARK партнёру скоро подключим!');
+}
+}
+function toggleMode() {
+haptic('heavy');
+const btn = document.getElementById('mode-switch');
+const logo = document.getElementById('main-logo');
+if (state.mode === 'kinetic') {
+state.mode = 'love';
+state.tab = 'pair';
+btn.classList.add('active');
+btn.textContent = 'KINETIC';
+logo.textContent = 'LOVE ❤️';
+} else {
+state.mode = 'kinetic';
+state.tab = 'mental';
+btn.classList.remove('active');
+btn.textContent = 'LOVE ❤️';
+logo.textContent = 'KINETIC';
+}
+updateBalanceUI();
+renderNav();
+renderContent();
+}
+function openProfile() {
+haptic('medium');
+showToast('Открываем 3D-Профиль, Гараж и Столик...');
+}
+function renderNav() {
+const nav = document.getElementById('bottom-nav');
+nav.className = state.mode === 'love' ? 'bottom-nav love-mode' : 'bottom-nav';
+const items = tabsData[state.mode];
+nav.innerHTML = items.map(item => <div class="nav-item ${state.tab === item.id ? 'active' : ''}" onclick="selectTab('${item.id}')"> <div class="nav-icon">${item.icon}</div> <div class="nav-label">${item.label}</div> </div>).join('');
+}
+function selectTab(id) {
+haptic('light');
+state.tab = id;
+renderNav();
+renderContent();
+}
+function renderContent() {
+const box = document.getElementById('app-content');
+if (state.mode === 'kinetic') {
+if (state.tab === 'mental') {
+box.innerHTML = <div class="section-title">МЕНТАЛ</div> <div class="section-sub">ИИ-разборы личности и карточки в Профиль</div> <div class="grid-2"> <div class="card" onclick="showToast('Запуск: Личность + отпечаток 3 сек.')"> <span class="card-icon">🧬</span> <div class="card-title">ЛИЧНОСТЬ</div> <div class="card-desc">Вопросы + скан отпечатка + ИИ-карта</div> <div class="energy-pill">⚡ Готово к тесту</div> </div> <div class="card" onclick="showToast('Запуск: ДОФАМИН.EXE')"> <span class="card-icon">🔋</span> <div class="card-title">ДОФАМИН.EXE</div> <div class="card-desc">Процент заряда и план восстановления</div> <div class="energy-pill">⚡ ИИ-анализ</div> </div> <div class="card" onclick="showToast('Запуск: 3D-кости ГРАНЬ ВЫБОРА')"> <span class="card-icon">🎲</span> <div class="card-title">ГРАНЬ ВЫБОРА</div> <div class="card-desc">Кости 50/50 ДА или НЕТ + история</div> </div> <div class="card" onclick="showToast('Запуск: ТОЧКА РОСТА')"> <span class="card-icon">🚀</span> <div class="card-title">ТОЧКА РОСТА</div> <div class="card-desc">Подбор твоей цифровой ниши от ИИ</div> </div> </div>;
+} else if (state.tab === 'horizon') {
+box.innerHTML = <div class="section-title">ГОРИЗОНТ</div> <div class="section-sub">ИИ-предсказания будущего в коллекцию</div> <div class="grid-2"> <div class="card" onclick="showToast('Генерация карты: АВТОПАРК')"> <span class="card-icon">🏎️</span> <div class="card-title">АВТОПАРК</div> <div class="card-desc">Твоя будущая машина по амбициям</div> </div> <div class="card" onclick="showToast('Генерация карты: ЛОКАЦИЯ')"> <span class="card-icon">🌆</span> <div class="card-title">ЛОКАЦИЯ</div> <div class="card-desc">Город, жильё и идеальный день</div> </div> <div class="card" onclick="showToast('Генерация карты: ПОТОЛОК')"> <span class="card-icon">💰</span> <div class="card-title">ПОТОЛОК</div> <div class="card-desc">Потенциальный доход и главный актив</div> </div> <div class="card" onclick="showToast('Генерация карты: ТОТЕМ')"> <span class="card-icon">🐺</span> <div class="card-title">ТОТЕМ</div> <div class="card-desc">Тотемное животное и энергетика</div> </div> </div>;
+} else if (state.tab === 'boost') {
+box.innerHTML = <div class="section-title">БУСТ</div> <div class="section-sub">Игровой клуб на виртуальные ₽ и \$</div> <div class="grid-2"> <div class="card" onclick="showToast('Открываем КНБ 1x1')"> <span class="card-icon">✂️</span> <div class="card-title">КНБ 1x1</div> <div class="card-desc">Дуэль со стриком x2 / x4 / x8</div> </div> <div class="card" onclick="showToast('Открываем САПЁР 4x4')"> <span class="card-icon">💣</span> <div class="card-title">САПЁР</div> <div class="card-desc">Сетка 4x4, 1 / 3 / 5 бомб</div> </div> <div class="card" onclick="showToast('Открываем РУЛЕТКУ')"> <span class="card-icon">🔫</span> <div class="card-title">РУЛЕТКА</div> <div class="card-desc">Барабан на 6 ячеек, 1–3 заряда</div> </div> <div class="card" onclick="showToast('Открываем РАКЕТУ')"> <span class="card-icon">🚀</span> <div class="card-title">РАКЕТА</div> <div class="card-desc">Успей забрать коэффициент</div> </div> <div class="card" onclick="showToast('Открываем БЛЭКДЖЕК 21')"> <span class="card-icon">🃏</span> <div class="card-title">БЛЭКДЖЕК</div> <div class="card-desc">Дуэль на 21 против ИИ-дилера</div> </div> <div class="card" onclick="showToast('Открываем ДУРАК')"> <span class="card-icon">♠️</span> <div class="card-title">ДУРАК</div> <div class="card-desc">Подкидной и переводной против ИИ</div> </div> </div>;
+} else if (state.tab === 'status') {
+box.innerHTML = <div class="section-title">СТАТУС</div> <div class="section-sub">Спины: 8 редкостей от Обычной до Божественной</div> <div class="grid-2"> <div class="card" onclick="showToast('Спин: Автопарк и номера (от 500k ₽)')"> <span class="card-icon">🚘</span> <div class="card-title">АВТО И НОМЕРА</div> <div class="card-desc">250 тачек и 100 блатных номеров</div> </div> <div class="card" onclick="showToast('Спин: Элитные часы (от 800k ₽)')"> <span class="card-icon">⌚</span> <div class="card-title">ЧАСЫ</div> <div class="card-desc">250 моделей от классики до Rolex</div> </div> <div class="card" onclick="showToast('Спин: Банковские карты (от 300k ₽)')"> <span class="card-icon">💳</span> <div class="card-title">БАНК. КАРТЫ</div> <div class="card-desc">100 элитных карт на столик</div> </div> <div class="card" onclick="showToast('Спин: Блатные симки (от 200k ₽)')"> <span class="card-icon">📱</span> <div class="card-title">СИМ-КАРТЫ</div> <div class="card-desc">100 редких номеров 777-77-77</div> </div> </div>;
+} else if (state.tab === 'neuro') {
+box.innerHTML = <div class="section-title">НЕЙРО</div> <div class="section-sub">Безлимитный ИИ-чат + 3 фото домашки в день</div> <div class="grid-2"> <div class="card" onclick="showToast('Открываем ИИ-Чат и Решатель по фото')"> <span class="card-icon">🤖</span> <div class="card-title">ИИ-ЧАТ + ФОТО</div> <div class="card-desc">Текст безлимит • 3 фото/день бесплатно</div> </div> <div class="card" onclick="showToast('Открываем Голос в текст')"> <span class="card-icon">🎙️</span> <div class="card-title">ГОЛОС В ТЕКСТ</div> <div class="card-desc">Расшифровка ГС + главная суть</div> </div> <div class="card" onclick="showToast('Открываем Мастер текстов')"> <span class="card-icon">✍️</span> <div class="card-title">МАСТЕР ТЕКСТОВ</div> <div class="card-desc">Ответы и посты в 3 стилях</div> </div> <div class="card" onclick="showToast('Открываем Нейро-конспект')"> <span class="card-icon">📑</span> <div class="card-title">КОНСПЕКТ</div> <div class="card-desc">Выжимка текста в 5 главных мыслей</div> </div> </div>;
+} else if (state.tab === 'market') {
+box.innerHTML = <div class="section-title">МАРКЕТ</div> <div class="section-sub">Тюнинг, VIP, ежедневный вход и Топ игроков</div> <div class="grid-2"> <div class="card" onclick="showToast('Тюнинг авто: Хром, Градиент, Посадка')"> <span class="card-icon">🎨</span> <div class="card-title">ТЮНИНГ И СТОЛ</div> <div class="card-desc">Покраска авто/дисков, клиренс и столы</div> </div> <div class="card" onclick="showToast('VIP-статус: 149 Stars / 30 дней')"> <span class="card-icon">👑</span> <div class="card-title">VIP-МАГАЗИН</div> <div class="card-desc">Удача 10X, без рекламы и слоты 3/3/2</div> </div> <div class="card" onclick="showToast('Календарь на 7 дней и задания')"> <span class="card-icon">🎁</span> <div class="card-title">ЗАДАНИЯ</div> <div class="card-desc">Бонусы до 1 000 000 ₽ и рефералка</div> </div> <div class="card" onclick="showToast('Открываем Таблицу лидеров')"> <span class="card-icon">🏆</span> <div class="card-title">ТОП ИГРОКОВ</div> <div class="card-desc">Рейтинг богачей и просмотр гаражей</div> </div> </div>;
+}
+} else {
+if (state.tab === 'pair') {
+box.innerHTML = `
+KINETIC LOVE ❤️
+Кристалл связи, Банка желаний и Капсула времени
+
+
+💎
+КРИСТАЛЛ СВЯЗИ
+Стрик пары: открывает ауры и мебель
+⚡ Активен сегодня
+
+🫙
+БАНКА ЖЕЛАНИЙ
+Хотелки и подарки (Публично / Скрыто)
+
+
+⏳
+КАПСУЛА ВРЕМЕНИ
+Фото и текст в будущее — откроется обоим
+
+
+🌸
+КАЛЕНДАРЬ
+Цикл, настроение и симптомы
+
+
+; } else if (state.tab === 'home') { box.innerHTML = 
+ОБЩИЙ ДОМ
+Планировка, Общая копилка и 80 видов питомцев
+
+
+🏦
+КОПИЛКА ЦЕЛИ
+Сейф SPARK на особняк или редкого пета
+
+
+🐾
+ПИТОМЦЫ (80)
+Уход, прогулка 30 мин и 9 уровней роста
+
+
+; } else if (state.tab === 'games') { box.innerHTML = 
+ИГРЫ ДЛЯ ДВОИХ
+4 режима с live-синхронизацией
+
+
+🔥
+ПРАВДА / ДЕЙСТВИЕ
+3 режима + штраф SPARK за отказ
+
+
+🖼️
+ПО БЛЮРУ
+Счёт пары вверху + мини-чат внизу
+
+
+💞
+КВИЗ + ИИ
+50+ тем и ИИ-Арбитр споров
+
+
+🎡
+СВИДАНИЯ
+Дома, город, на расстоянии + свои
+
+
+; } else if (state.tab === 'chat') { box.innerHTML = 
+ПАРНЫЙ ЧАТ
+Мини-чат с вашими темами и пузырями
+
+💌
+ЧАТ ДВОИХ
+Мгновенная синхронизация и украшения
+
+; } else if (state.tab === 'lovemarket') { box.innerHTML = 
+МАРКЕТ ПАРЫ
+Боксы, дома, мебель и одежда для питомцев
+
+
+📦
+ПАРНЫЕ БОКСЫ
+100+ рамок, домов и одежды для петов
+
+
+🛋️
+ДОМ И ЗООМАГ
+Мебель, перекраска, корм и туалеты
+
+
+`;
+}
+}
+}
+updateBalanceUI();
+renderNav();
+renderContent();
