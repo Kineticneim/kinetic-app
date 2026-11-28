@@ -54,13 +54,15 @@ const views = {
     ['🃏', 'БЛЭКДЖЕК', 'Дуэль на 21 против ИИ-дилера', '21', "toast('Следующий модуль: БУСТ')"],
     ['♠️', 'ДУРАК', 'Подкидной и переводной против ИИ', 'КАРТЫ', "toast('Следующий модуль: БУСТ')"]
   ]],
-  status: ['СТАТУС', 'Спины: 8 редкостей от Обычной до Божественной', [
-    ['🚘', 'АВТО И НОМЕРА', '250 машин и 100 блатных номеров', 'от 500k', "openSpin('car')"],
+status: ['СТАТУС', '7 отдельных спинов и 8 редкостей', [
+    ['🚘', 'АВТОПАРК', '250 машин от классики до гиперкаров', 'от 500k', "openSpin('car')"],
+    ['🔢', 'АВТОНОМЕРА', 'Отдельные блатные номера на твоё авто', 'от 350k', "openSpin('plate')"],
     ['⌚', 'ЭЛИТНЫЕ ЧАСЫ', '250 моделей от классики до Rolex', 'от 800k', "openSpin('watch')"],
     ['💳', 'БАНК. КАРТЫ', '100 элитных карт на столик', 'от 300k', "openSpin('card')"],
     ['📱', 'СИМ-КАРТЫ', '100 редких номеров 777-77-77', 'от 200k', "openSpin('sim')"],
-    ['🌌', 'АУРА И ГАРАЖИ', '50 стилей города, домов и свечений', 'от 1M', "openSpin('aura')"],
-    ['🎒', 'МОЙ ИНВЕНТАРЬ', 'Все выбитые предметы, надеть или продать', 'КОЛЛЕКЦИЯ', 'openInventory()']
+    ['✨', 'АУРЫ ПРОФИЛЯ', 'Отдельные свечения вокруг аватара', 'от 600k', "openSpin('aura')"],
+    ['🏛️', 'ДОМА И ГАРАЖИ', 'Отдельные локации, виллы и гаражи', 'от 1M', "openSpin('house')"],
+    ['🔒', 'СЕЙФ И СОХРАНЁННЫЕ', 'Сохранённые (1000) и защищённый Сейф (50)', 'СКЛАД', "openStorage('saved')"]
   ]],
   neuro: ['НЕЙРО', 'Безлимитный ИИ-чат + 3 фото в день', [
     ['🤖', 'ИИ-ЧАТ + ФОТО', 'Текст безлимит • 3 фото/день бесплатно', 'FREE', "toast('Подключаем ИИ-API...')"],
@@ -142,6 +144,11 @@ function openTable() {
 function openProfile() {
   vib('medium');
   const c = cars[st.car];
+  const carName = st.equippedCar || 'LAND CRUISER 200';
+  const plateName = st.equippedPlate || 'А777АА 777';
+  const houseName = st.equippedHouse || 'Чёрный гараж у бассейна';
+  const auraName = st.equippedAura || 'Аура: Мафиозная тень';
+
   document.getElementById('app').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div class="title" style="margin:0">ПРОФИЛЬ</div>
@@ -151,20 +158,21 @@ function openProfile() {
       <div class="ava" style="width:48px;height:48px"><img src="${uAva}"></div>
       <div class="row-body">
         <div class="ctitle" style="font-size:13px">${uName} <span style="color:#F59E0B">👑</span></div>
-        <div class="cdesc">Аура: Мафиозная тень • Подарков: 3</div>
+        <div class="cdesc">${auraName}</div>
       </div>
+      <button class="mbtn" style="padding:6px 10px;font-size:9px" onclick="openStorage('safe')">🔒 Сейф</button>
     </div>
     <div style="background:linear-gradient(180deg,#131626,#0B0C10);border:1px solid #3B82F6;border-radius:18px;padding:14px;margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;font-size:10px;color:#8E92A4;margin-bottom:10px">
-        <span>🏠 Чёрный гараж у бассейна</span>
+        <span>🏛️ ${houseName}</span>
         <span>${st.low ? 'Заниженная 🔥' : 'Стандарт'}</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <div style="flex:1;background:${c.hex};padding:14px 8px;border-radius:14px;text-align:center;border:1px solid rgba(255,255,255,.2);transform:translateY(${st.low ? '6px' : '0'});transition:.2s">
           <div style="font-size:24px">🚙</div>
-          <div class="ctitle" style="margin-top:4px">CRUISER 200</div>
-          <div style="font-size:10px;opacity:.85">${c.name}</div>
-          <div style="display:inline-block;background:#fff;color:#000;font-family:'Unbounded';font-weight:800;font-size:10px;border-radius:4px;margin-top:6px;padding:2px 8px;border:1.5px solid #000">А777АА 777</div>
+          <div class="ctitle" style="margin-top:4px;font-size:10.5px">${carName}</div>
+          <div style="font-size:9.5px;opacity:.85">${c.name}</div>
+          <div style="display:inline-block;background:#fff;color:#000;font-family:'Unbounded';font-weight:800;font-size:10px;border-radius:4px;margin-top:6px;padding:2px 8px;border:1.5px solid #000">${plateName}</div>
         </div>
         <div onclick="openTable()" style="width:94px;background:#1B1E2E;border:1px solid #F59E0B;border-radius:14px;padding:14px 6px;text-align:center;cursor:pointer;box-shadow:0 0 14px rgba(245,158,11,.2)">
           <div style="font-size:18px">💳📱⌚</div>
